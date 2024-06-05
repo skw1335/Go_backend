@@ -47,11 +47,9 @@ def WebScraper(url):
     for index, name in enumerate(names): 
         store_name = name.get_attribute("aria-label")
         Names.append(store_name)
-    print(Names)
     for index, r_and_r in enumerate(reviews_and_ratings):
         review_and_rating = r_and_r.get_attribute("aria-label")
         Stars.append(review_and_rating)
-    print(Stars)
     for i, parent in enumerate(info):
         child = parent.find_element(By.XPATH, "./*")
         if child.tag_name == 'div':
@@ -63,9 +61,9 @@ def WebScraper(url):
             s = ''.join(elem)
             tmp = s.split('·')
             Addresses.append(tmp[-1])
+    print(Addresses)
     for i in range(len(Names)):
         database[Names[i]] = [Stars[i], Addresses[i]]  
-    print(database) 
     with open('Overall_database.csv', 'w') as f:
         w = csv.writer(f)
         for key, value in database.items():
