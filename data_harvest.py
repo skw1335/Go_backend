@@ -1,18 +1,31 @@
-from seleniumwire import webdriver
-from selenium.webdriver.chrome.service import Service
+from collections import defaultdict
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import csv
 
+
 # Initalize a bunch of arrays to store each individual attribute
 
+#Names = []
+#Reviews = []
+#Stars = []
+#Stars_count = []
+#Locations = []
+#Coordinates =
+#Addresses = []
+
+database = defaultdict(list)
+
+url_list = [ "https://www.google.com/maps/search/coffee+shop+in+boston/",  
+ #  "https://www.google.com/maps/search/coffee+shop+in+brookline/",  
+  # "https://www.google.com/maps/search/coffee+shop+in+cambridge/",
+   ]
 
 Overall_database = {}
 # Initialize the webdriver
@@ -22,10 +35,11 @@ def WebScraper(url):
     Reviews = []
     Stars = []
     Stars_count = []
+    Coordinates = []
     Locations = []
     Addresses = []
-    database = {}
-
+    Coords = []
+    Url_With_Coordinates = []
     # Open the desired webpage
     driver.get(url)
 # Wait for the main elements to be present
@@ -35,15 +49,13 @@ def WebScraper(url):
 
 # Now find the elements
     actions = ActionChains(driver)
-    for _ in range(50):
+    for _ in range(100):
         names = driver.find_elements(By.CLASS_NAME, "hfpxzc")
         reviews_and_ratings = driver.find_elements(By.CLASS_NAME, "ZkP5Je")
         info = driver.find_elements(By.CLASS_NAME, "W4Efsd")
         actions.send_keys(3*Keys.ARROW_DOWN).perform()
         time.sleep(1)
-
-# Print the number of elements found
-# Iterate through the elements and access the 'aria-label' attribute
+# Get the different data parameters, Name, Rating and reviews, Address
     for index, name in enumerate(names): 
         store_name = name.get_attribute("aria-label")
         Names.append(store_name)
@@ -61,22 +73,42 @@ def WebScraper(url):
             s = ''.join(elem)
             tmp = s.split('·')
             Addresses.append(tmp[-1])
-    print(Addresses)
-    for i in range(len(Names)):
-        database[Names[i]] = [Stars[i], Addresses[i]]  
+    for i in range(min(len(Stars), len(Names))):
+       # print(f" index = {i} | Names[i] = {Names[i]}")
+       # print(f" index = {i} | Stars[i] = {Stars[i]}")
+       # print(f" index = {i} | Addresses[i] = {Addresses[i]}")
+       # print(f" index = {i} | Coordinates[i] = {Coordinates[i]}")
+        database[Names[i]].append([Stars[i], Addresses[i]])
+   
+    print("we made it")
+    
+    print("to the end of the function :)")
+def WebScraper_iter():
+    for url in url_list:
+        WebScraper(url)
     with open('Overall_database.csv', 'w') as f:
         w = csv.writer(f)
         for key, value in database.items():
-            w.writerow([key, value])
+                w.writerow([key, value])
+                w.writerow("\n")
 
-    Overall_database.update(database)
-    
+WebScraper_iter()
 
 
-#def WebScraper_iter():
-   #WebScraper("https://www.google.com/maps/search/coffee+shop+in+boston/")
-   #WebScarper("https://www.google.com/maps/search/coffee+shop+in+brookline/")
-   #WebScraper("https://www.google.com/maps/search/coffee+shop+in+cambridge/")
+def Coord_Scraper():
+    for values in database.values():
+        for val in values:
+           Coords.append(val[1]) 
+           
 
-WebScraper("https://www.google.com/maps/search/coffee+shop+in+boston/")
+
+
+Coord_Scraper()
+#    Coords.append("https://google.com/maps/search/" + i for i in Addresses)
+    #    for url in Coords:
+     #       driver2.get(url)
+      #      Url_With_Coordinates.append(driver.find_elements(By.CSS_SELECTOR, 'meta[itemprop=image]').get_attribute('content'))
+
+       # print(Url_with_Coordinates)
+
 
