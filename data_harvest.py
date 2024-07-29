@@ -6,30 +6,44 @@ from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from shapely.geometry import Point
+from shapely_geojson import dumps, Feature, FeatureCollection
 import time
 import csv
+import pymysql
+import mysql.connector
+import json
 
 
-# Initalize a bunch of arrays to store each individual attribute
 
-#Names = []
-#Reviews = []
-#Stars = []
-#Stars_count = []
-#Locations = []
-#Coordinates =
-#Addresses = []
 
 database = defaultdict(list)
 
 url_list = [ "https://www.google.com/maps/search/coffee+shop+in+boston/",  
- #  "https://www.google.com/maps/search/coffee+shop+in+brookline/",  
-  # "https://www.google.com/maps/search/coffee+shop+in+cambridge/",
+   "https://www.google.com/maps/search/coffee+shop+in+brookline/",  
+   "https://www.google.com/maps/search/coffee+shop+in+cambridge/",
    ]
 
 Overall_database = {}
 # Initialize the webdriver
 driver = webdriver.Chrome()
+
+#function to add database rows to mysql database
+
+def insert_variables_into_table(ShopName, lat, lng, Reviews, Ratings, Address):
+    try:
+        connection = mysql.connector.connect(host='localhost',database='overall_database',user='sam',password='Defisme1!')
+        cursor = connection.cursor()
+        mySql_insert_query = """INSERT INTO boston (ShopName, lat, lng, Reviews, Ratings, Address) VALUES (%s, %s, %s, %s, %s, %s) """
+        record = (ShopName, lat, lng, Reviews, Ratings, Address)
+        cursor.execute(mySql_insert_query, record)
+        connection.commit()
+        print("Record inserted successfully into boston table")
+
+    except mysql.connector.Error as error:
+        print("Failed to insert into MySQL table {}".format(error))
+
+        
 def WebScraper(url):
     Names = []
     Reviews = []
@@ -38,8 +52,7 @@ def WebScraper(url):
     Coordinates = []
     Locations = []
     Addresses = []
-    Coords = []
-    Url_With_Coordinates = []
+    output_list = []
     # Open the desired webpage
     driver.get(url)
 # Wait for the main elements to be present
@@ -49,7 +62,7 @@ def WebScraper(url):
 
 # Now find the elements
     actions = ActionChains(driver)
-    for _ in range(100):
+    for _ in range(150):
         names = driver.find_elements(By.CLASS_NAME, "hfpxzc")
         reviews_and_ratings = driver.find_elements(By.CLASS_NAME, "ZkP5Je")
         info = driver.find_elements(By.CLASS_NAME, "W4Efsd")
@@ -78,8 +91,10 @@ def WebScraper(url):
        # print(f" index = {i} | Stars[i] = {Stars[i]}")
        # print(f" index = {i} | Addresses[i] = {Addresses[i]}")
        # print(f" index = {i} | Coordinates[i] = {Coordinates[i]}")
+        s = Stars[i].split(' ')
         database[Names[i]].append([Stars[i], Addresses[i]])
-   
+    
+
     print("we made it")
     
     print("to the end of the function :)")
@@ -93,22 +108,37 @@ def WebScraper_iter():
                 w.writerow("\n")
 
 WebScraper_iter()
-
-
+tmp = []
+features = []
+json_data_with_duplicates = {}
+json_data = {}
 def Coord_Scraper():
-    for values in database.values():
-        for val in values:
-           Coords.append(val[1]) 
-           
+    ind = 0
+    for key, value in database.items():
+        for val in value:
+            driver.get("https://google.com/maps/search/" + key + ' ' + val[1].strip())
+            coordinates = (driver.find_elements(By.CSS_SELECTOR, 'meta[itemprop=image]'))
+            for i in coordinates:
+                x = i.get_attribute('content') 
+                tmp.append(x)
+            for i in tmp:
+                i = i.split('?center=')[1].split('&zoom=')[0].split('%2C')
+            
+            s = val[0].split(' ')
+            #print(f" key = {key} | i[0] = {i[0]} | i[1] = {i[1]} | s[0] = {s[0]} | s[2] = {s[2]} | val[1] = {val[1]} ")
+            feature = Feature(Point(i[1], i[0]), 
+                    { 'key': key,
+                      'Review': s[0],
+                      'Ratings': s[2],
+                      'Address': val[1]
+                    })
+            features.append(feature)
+            ind += 1
 
-
-
+    feature_collection = FeatureCollection(features)
+    print(dumps(feature_collection, indent=2))
+    with open('data.json', 'w') as f:
+        f.write(dumps(feature_collection, indent=2))
 Coord_Scraper()
-#    Coords.append("https://google.com/maps/search/" + i for i in Addresses)
-    #    for url in Coords:
-     #       driver2.get(url)
-      #      Url_With_Coordinates.append(driver.find_elements(By.CSS_SELECTOR, 'meta[itemprop=image]').get_attribute('content'))
-
-       # print(Url_with_Coordinates)
 
 
