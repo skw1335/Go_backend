@@ -1,7 +1,7 @@
 package api
 
 
-import ( 
+import (
   "database/sql"
   "net/http"
 
@@ -27,7 +27,7 @@ func (s *APIServer) Run() error {
   
   userHandler := user.NewHandler()
   userHandler.RegisterRoutes(subrouter)
-  log.Println("listening on", s.)
+  log.Println("listening on", s)
  
 
   return http.ListenAndServer(s.addr, router)
