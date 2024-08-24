@@ -4,7 +4,7 @@ package api
 import (
   "database/sql"
   "net/http"
-
+  "log"
   "github.com/gorilla/mux"
 )
 type APIServer struct {
@@ -30,7 +30,7 @@ func (s *APIServer) Run() error {
   log.Println("listening on", s)
  
 
-  return http.ListenAndServer(s.addr, router)
+  return http.ListenAndServe(s.addr, router)
 }
 
 
