@@ -1,13 +1,12 @@
 package api
 
-import "database/sql"
 
-import {
+import ( 
   "database/sql"
   "net/http"
 
   "github.com/gorilla/mux"
-}
+)
 type APIServer struct {
 
   addr string

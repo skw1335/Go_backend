@@ -1,6 +1,10 @@
 package main
 
-import "github.com/skw1335/Go_backend/cmd/api"
+import (
+  "log"
+
+  "github.com/skw1335/Go_backend/cmd/api"
+ )
 
 func main() {
   server := api.NewAPIServer(":8080", nil)
