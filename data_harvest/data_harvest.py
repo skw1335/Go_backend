@@ -127,7 +127,7 @@ def Coord_Scraper():
             s = val[0].split(' ')
             #print(f" key = {key} | i[0] = {i[0]} | i[1] = {i[1]} | s[0] = {s[0]} | s[2] = {s[2]} | val[1] = {val[1]} ")
             feature = Feature(Point(i[1], i[0]), 
-                    { 'key': key,
+                    { 'Name': key,
                       'Review': s[0],
                       'Ratings': s[2],
                       'Address': val[1]
