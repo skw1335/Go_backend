@@ -1,6 +1,7 @@
 package user
 
-import ( 
+import (
+  "net/http"
   "github.com/gorilla/mux"
  )
 
@@ -13,8 +14,8 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-  router.HandleFunc("/login", h.handleLogin().Methods("POST"))
-  router.HandleFunc("/register", h.handleLogin().Methods("POST"))
+  router.HandleFunc("/login", h.handleLogin).Methods("POST")
+  router.HandleFunc("/register", h.handleRegister).Methods("POST")
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
