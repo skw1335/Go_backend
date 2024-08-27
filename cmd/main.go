@@ -1,19 +1,20 @@
 package main
 
 import (
+  "database/sql"
   "log"
   "github.com/go-sql-driver/mysql"
   "github.com/skw1335/Go_backend/cmd/api"
   "github.com/skw1335/Go_backend/db"
-  "github.com/skw1335/Go_backend/configs/env"
+  "github.com/skw1335/Go_backend/configs"
 )
 
 func main() {
   db, err := db.NewMySQLStorage(mysql.Config {
-    User:         config.Envs.DBUser,
-    Password:     config.Envs.DBPassword,
-    Addr:         config.Envs.DBAddress,
-    DBName:       config.Envs.DBName, 
+    User:         configs.Envs.DBUser,
+    Passwd:       configs.Envs.DBPassword,
+    Addr:         configs.Envs.DBAddress,
+    DBName:       configs.Envs.DBName, 
     Net:          "tcp",
     AllowNativePasswords: true,
     ParseTime: true,
