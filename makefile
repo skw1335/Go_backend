@@ -1,8 +1,8 @@
 build:
-	@go build -o bin/Go_backend cmd/main.go
-
-test:
-	@go test -v ./...
+	@go build -o bin/Go_backend 
 
 run: build
 	@./bin/Go_backend
+
+test:
+	@go test -v ./...
